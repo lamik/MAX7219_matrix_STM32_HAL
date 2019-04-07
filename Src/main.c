@@ -35,7 +35,16 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
+  *  The MIT License.
+  *  Created on: 01.02.2019
+  *		Author: Mateusz Salamon
+  *		www.msalamon.pl
+  *		mateusz@msalamon.pl
+  *
+  *      Website: https://msalamon.pl/nigdy-wiecej-multipleksowania-na-gpio!-max7219-w-akcji-cz-3/
+  *      GitHub:  https://github.com/lamik/MAX7219_matrix_STM32_HAL
   */
+
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/

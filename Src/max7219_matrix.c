@@ -1,8 +1,14 @@
 /*
  * max7219_digits.c
  *
+ *  The MIT License.
  *  Created on: 01.02.2019
- *      Author: Mateusz Salamon
+ *		Author: Mateusz Salamon
+ *		www.msalamon.pl
+ *		mateusz@msalamon.pl
+ *
+ *      Website: https://msalamon.pl/nigdy-wiecej-multipleksowania-na-gpio!-max7219-w-akcji-cz-3/
+ *      GitHub:  https://github.com/lamik/MAX7219_matrix_STM32_HAL
  */
 
 #include "main.h"
@@ -157,14 +163,17 @@ MAX7219_STATUS MAX7219_Clear(MAX7219_Color Color)
 
 MAX7219_STATUS MAX7219_Display(void)
 {
-	uint32_t i, j;
+	uint32_t i, j, k;
 
 	for(i = 0; i < 8; i++)
 	{
-		for(j = 0; j < MAX7219_DEVICES; j++)
+		for(j = 0; j < MAX7219_ROWS; j++)
 		{
-			Max7219SpiBuffer[(MAX7219_DEVICES * 2) - (2*j) - 2] = MAX7219_DIGIT0_REGISTER + i;
-			Max7219SpiBuffer[(MAX7219_DEVICES * 2) - (2*j) - 1] = Max7219PixelsBuffer[j + (i*MAX7219_COLUMNS)];
+			for(k = 0; k < MAX7219_COLUMNS; k++)
+			{
+				Max7219SpiBuffer[(MAX7219_DEVICES * 2) - (2 * (k + (j * MAX7219_COLUMNS)) ) - 2] = MAX7219_DIGIT0_REGISTER + i;
+				Max7219SpiBuffer[(MAX7219_DEVICES * 2) - (2 * (k + (j * MAX7219_COLUMNS)) ) - 1] = Max7219PixelsBuffer[k + (j * MAX7219_COLUMNS * 8) + (i * MAX7219_COLUMNS)];
+			}
 		}
 
 	#ifndef SPI_CS_HARDWARE_CONTROL

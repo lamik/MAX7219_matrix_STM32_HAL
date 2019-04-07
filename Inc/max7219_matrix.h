@@ -1,8 +1,14 @@
 /*
  * max7219_digits.h
  *
+ *  The MIT License.
  *  Created on: 01.02.2019
- *      Author: Mateusz Salamon
+ *		Author: Mateusz Salamon
+ *		www.msalamon.pl
+ *		mateusz@msalamon.pl
+ *
+ *      Website: https://msalamon.pl/nigdy-wiecej-multipleksowania-na-gpio!-max7219-w-akcji-cz-3/
+ *      GitHub:  https://github.com/lamik/MAX7219_matrix_STM32_HAL
  */
 
 #ifndef MAX7219_MATRIX_H_
