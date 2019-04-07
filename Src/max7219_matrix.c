@@ -125,13 +125,13 @@ MAX7219_STATUS MAX7219_SetPixel(int x, int y, MAX7219_Color Color)
 	 switch(Color)
 	 {
 #if(MAX7219_MODULE_TYPE == 0)
-		 case MAX7219_WHITE:   Max7219PixelsBuffer[(x/8) + (y*MAX7219_COLUMN_DEVICES)] |=  (0x80 >> (x&7)); break;
-		 case MAX7219_BLACK:   Max7219PixelsBuffer[(x/8) + (y*MAX7219_COLUMN_DEVICES)] &= ~(0x80 >> (x&7)); break;
-		 case MAX7219_INVERSE: Max7219PixelsBuffer[(x/8) + (y*MAX7219_COLUMN_DEVICES)] ^=  (0x80 >> (x&7)); break;
+		 case MAX7219_WHITE:   Max7219PixelsBuffer[(x/8) + (y*MAX7219_COLUMNS)] |=  (0x80 >> (x&7)); break;
+		 case MAX7219_BLACK:   Max7219PixelsBuffer[(x/8) + (y*MAX7219_COLUMNS)] &= ~(0x80 >> (x&7)); break;
+		 case MAX7219_INVERSE: Max7219PixelsBuffer[(x/8) + (y*MAX7219_COLUMNS)] ^=  (0x80 >> (x&7)); break;
 #elif(MAX7219_MODULE_TYPE == 1)
-		 case MAX7219_WHITE:   Max7219PixelsBuffer[(x/8) + ((MAX7219_PIXELS_PER_DEVICE_ROW-1) - ((y%8)) + ((y/8)*MAX7219_PIXELS_PER_DEVICE_ROW))*MAX7219_COLUMN_DEVICES] |=  (1 << (x&7)); break;
-		 case MAX7219_BLACK:   Max7219PixelsBuffer[(x/8) + ((MAX7219_PIXELS_PER_DEVICE_ROW-1) - ((y%8)) + ((y/8)*MAX7219_PIXELS_PER_DEVICE_ROW))*MAX7219_COLUMN_DEVICES] &= ~(1 << (x&7)); break;
-		 case MAX7219_INVERSE: Max7219PixelsBuffer[(x/8) + ((MAX7219_PIXELS_PER_DEVICE_ROW-1) - ((y%8)) + ((y/8)*MAX7219_PIXELS_PER_DEVICE_ROW))*MAX7219_COLUMN_DEVICES] ^=  (1 << (x&7)); break;
+		 case MAX7219_WHITE:   Max7219PixelsBuffer[(x/8) + ((MAX7219_PIXELS_PER_DEVICE_ROW-1) - ((y%8)) + ((y/8)*MAX7219_PIXELS_PER_DEVICE_ROW))*MAX7219_COLUMNS] |=  (1 << (x&7)); break;
+		 case MAX7219_BLACK:   Max7219PixelsBuffer[(x/8) + ((MAX7219_PIXELS_PER_DEVICE_ROW-1) - ((y%8)) + ((y/8)*MAX7219_PIXELS_PER_DEVICE_ROW))*MAX7219_COLUMNS] &= ~(1 << (x&7)); break;
+		 case MAX7219_INVERSE: Max7219PixelsBuffer[(x/8) + ((MAX7219_PIXELS_PER_DEVICE_ROW-1) - ((y%8)) + ((y/8)*MAX7219_PIXELS_PER_DEVICE_ROW))*MAX7219_COLUMNS] ^=  (1 << (x&7)); break;
 #endif
 		 default: return MAX7219_ERROR;
 	 }
@@ -158,24 +158,27 @@ MAX7219_STATUS MAX7219_Clear(MAX7219_Color Color)
 MAX7219_STATUS MAX7219_Display(void)
 {
 	uint32_t i, j;
-	uint8_t InDeviceRow;
-	uint8_t DataToSend;
-	uint32_t Buffer_Index;
 
-	for(i = 0; i < MAX7219_ROW_DEVICES; i++)
+	for(i = 0; i < 8; i++)
 	{
-		for(j = 0; j < MAX7219_COLUMN_DEVICES; j++)
+		for(j = 0; j < MAX7219_DEVICES; j++)
 		{
-			for(InDeviceRow = 0; InDeviceRow < MAX7219_PIXELS_PER_DEVICE_ROW; InDeviceRow++)
-			{
-				Buffer_Index = (j + (InDeviceRow * MAX7219_COLUMN_DEVICES) + (i * MAX7219_COLUMN_DEVICES * MAX7219_PIXELS_PER_DEVICE_COLUMN));
-				DataToSend = Max7219PixelsBuffer[Buffer_Index];
-				if(MAX7219_ERROR == MAX7219_SendToDevice((j + i*MAX7219_COLUMN_DEVICES), MAX7219_DIGIT0_REGISTER + InDeviceRow, DataToSend))
-				{
-					return MAX7219_ERROR;
-				}
-			}
+			Max7219SpiBuffer[(MAX7219_DEVICES * 2) - (2*j) - 2] = MAX7219_DIGIT0_REGISTER + i;
+			Max7219SpiBuffer[(MAX7219_DEVICES * 2) - (2*j) - 1] = Max7219PixelsBuffer[j + (i*MAX7219_COLUMNS)];
 		}
+
+	#ifndef SPI_CS_HARDWARE_CONTROL
+		HAL_GPIO_WritePin(MAX7219_CS_GPIO_Port, MAX7219_CS_Pin, GPIO_PIN_RESET);
+	#endif
+
+		if(HAL_OK != HAL_SPI_Transmit(max7219_spi, Max7219SpiBuffer, (MAX7219_DEVICES * 2), 10))
+		{
+			return MAX7219_ERROR;
+		}
+
+	#ifndef SPI_CS_HARDWARE_CONTROL
+		HAL_GPIO_WritePin(MAX7219_CS_GPIO_Port, MAX7219_CS_Pin, GPIO_PIN_SET);
+	#endif
 	}
 
 	return MAX7219_OK;

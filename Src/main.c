@@ -121,13 +121,6 @@ int main(void)
   GFX_SetFontSize(1);
 
   MAX7219_Clear(MAX7219_BLACK);
-  MAX7219_SetPixel(0,0,MAX7219_WHITE);
-  MAX7219_SetPixel(1,0,MAX7219_WHITE);
-  MAX7219_SetPixel(1,1,MAX7219_WHITE);
-  MAX7219_SetPixel(32,0,MAX7219_WHITE);
-  MAX7219_SetPixel(33,0,MAX7219_WHITE);
-  MAX7219_SetPixel(32,1,MAX7219_WHITE);
-  MAX7219_SetPixel(7,7,MAX7219_WHITE);
   MAX7219_Display();
 
   TextSize = strlen(Text);
@@ -137,7 +130,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  int i;
+	  int i=0;
 	  for(i = MAX7219_X_PIXELS; i > ((TextSize * (GFX_GetFontWidth() + 1)) * -1); i--)
 	  {
 		  MAX7219_Clear(MAX7219_BLACK);
